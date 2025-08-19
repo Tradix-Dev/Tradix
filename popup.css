@@ -1,0 +1,485 @@
+/* Basic reset and container */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 350px;
+    height: 550px;
+    font-family: Arial, sans-serif;
+    background: #1F1F1F;
+    color: #fff;
+    overflow: hidden;
+}
+
+.container {
+    width: 350px;
+    height: 550px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    background: #1F1F1F;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-picture {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #444;
+}
+
+.profile-icon {
+    width: 20px;
+    height: 20px;
+    color: #888;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.clock-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.clock-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.clock-svg {
+    width: 20px;
+    height: 20px;
+    color: #888;
+}
+
+.settings-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.settings-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.gear-icon {
+    width: 20px;
+    height: 20px;
+    color: #888;
+}
+
+.main-content {
+    flex: 1;
+    background: #1F1F1F;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar {
+    display: none;
+}
+
+.home-content {
+    padding: 20px 16px;
+}
+
+.dashboard-button {
+    width: 100%;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.dashboard-button:hover {
+    background: #333;
+}
+
+.divider {
+    height: 1px;
+    background: #333;
+    margin: 12px 0;
+}
+
+.trading-feed {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.trading-feed::-webkit-scrollbar {
+    display: none;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #333;
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.trade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 12px;
+}
+
+.trade-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.trade-item:last-child {
+    border-bottom: none;
+}
+
+.wallet-address {
+    color: #888;
+    font-family: monospace;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.trade-action {
+    color: #fff;
+    font-weight: 500;
+}
+
+.trade-token {
+    color: #888;
+    font-size: 11px;
+}
+
+.sol-amount {
+    color: #888;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.pnl {
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.pnl.positive {
+    color: #44ff44;
+}
+
+.pnl.negative {
+    color: #ff4444;
+}
+
+.welcome-text {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcome-text p {
+    font-size: 16px;
+    color: #888;
+    margin: 0;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 4px;
+}
+
+
+
+.tradix-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-solana {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 16px;
+}
+
+.header-solana-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.header-solana-amount {
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+}
+
+.tradix-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.tradix-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.greeting h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.greeting p {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card {
+    width: 100%;
+    height: 80px;
+    background: #2A2A2A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.card:hover {
+    background: #333;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.card-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.card-icon {
+    width: 24px;
+    height: 24px;
+    color: #888;
+}
+
+/* Crypto Card Styles */
+.crypto-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crypto-icon {
+    width: 40px;
+    height: 40px;
+    background: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.solana-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.crypto-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crypto-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.crypto-amount {
+    font-size: 14px;
+    color: #888;
+}
+
+.price-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+}
+
+.price-change {
+    font-size: 14px;
+    font-weight: 400;
+    color: #888;
+}
+
+/* Footer Navigation */
+.footer {
+    background: #2A2A2A;
+    border-top: 1px solid #333;
+    padding: 8px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 60px;
+    position: relative;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.3));
+    pointer-events: none;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    color: #fff;
+    position: relative;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 1px;
+    background: #fff;
+    border-radius: 0.5px;
+}
+
+.nav-item:not(.active) {
+    color: #888;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 2px;
+}
+
+.nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+}
