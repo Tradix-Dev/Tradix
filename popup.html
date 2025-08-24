@@ -44,6 +44,319 @@
                     <!-- Trading data will be populated by JavaScript -->
                 </div>
             </div>
+            
+            <div class="dashboard-content" style="display: none;">
+                <div class="dashboard-sections">
+                    <!-- Copy Trading Section -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Copy Trading</h3>
+                        <div class="copy-trading-form">
+                            <div class="input-group">
+                                <label for="traderAddress">Trader Address</label>
+                                <input type="text" id="traderAddress" placeholder="Enter Solana wallet address" class="address-input">
+                                <button class="add-trader-btn">Add Trader</button>
+                            </div>
+                            
+                            <div class="traders-list" id="tradersList">
+                                <!-- Traders will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trading Settings Section -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Trading Settings</h3>
+                        
+                        <div class="settings-container">
+                            <!-- Basic Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Basic Settings</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="slippage">Slippage</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="slippage" value="5 %" class="setting-input">
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="solAmount">SOL Amount</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="solAmount" value="0.1 SOL" class="setting-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buy/Sell Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Trade Amounts</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="buyAmount">Buy Amount</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="buyAmount" value="0.1 SOL" class="setting-input">
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="sellAmount">Sell Amount</label>
+                                        <div class="sell-percentage-buttons">
+                                            <button class="sell-btn" data-value="25">25%</button>
+                                            <button class="sell-btn" data-value="50">50%</button>
+                                            <button class="sell-btn" data-value="75">75%</button>
+                                            <button class="sell-btn active" data-value="100">100%</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Time Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Time Delays</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="buyDelay">Buy Delay</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="buyDelay" value="0 sec" class="setting-input">
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="sellDelay">Sell Delay</label>
+                                        <div class="input-wrapper">
+                                            <input type="number" id="sellDelay" value="0" min="0" max="300" class="setting-input">
+                                            <span class="input-suffix">sec</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Stop Loss Section -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Stop Loss & Take Profit</h3>
+                        <div class="stop-loss-container">
+                            <!-- Take Profit Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Take Profit</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="profitMC">Profit MC Target</label>
+                                        <div class="input-wrapper profit-mc-wrapper">
+                                            <input type="text" id="profitMC" value="1000000 MC" class="setting-input profit-mc-input">
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="profitPercent">Profit Target %</label>
+                                        <div class="input-wrapper profit-percent-wrapper">
+                                            <input type="text" id="profitPercent" value="50 %" class="setting-input profit-percent-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stop Loss Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Stop Loss</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="stopLossMC">Stop Loss MC</label>
+                                        <div class="input-wrapper stop-loss-mc-wrapper">
+                                            <input type="text" id="stopLossMC" value="500000 MC" class="setting-input stop-loss-mc-input">
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="stopLossPercent">Stop Loss %</label>
+                                        <div class="input-wrapper stop-loss-percent-wrapper">
+                                            <input type="text" id="stopLossPercent" value="20 %" class="setting-input stop-loss-percent-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Auto Sell Settings -->
+                            <div class="settings-group">
+                                <h4 class="group-title">Auto Sell Settings</h4>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="autoSellEnabled">Auto Sell</label>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="autoSellEnabled" class="toggle-input">
+                                            <label for="autoSellEnabled" class="toggle-label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label for="sellDelay">Sell Delay</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="sellDelay" value="5 sec" class="setting-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Token Sniping Section -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Token Sniping</h3>
+                        <div class="sniping-form">
+                            <div class="input-group">
+                                <label for="tokenKeywords">Token Keywords</label>
+                                <input type="text" id="tokenKeywords" placeholder="Enter keywords (comma separated)" class="keyword-input">
+                            </div>
+                            <div class="input-group">
+                                <label for="snipeInterval">Check Interval (seconds)</label>
+                                <input type="number" id="snipeInterval" value="30" min="5" max="300" class="setting-input">
+                            </div>
+                            <div class="sniping-actions">
+                                <button class="start-sniping-btn">Start Sniping</button>
+                                <button class="stop-sniping-btn" style="display: none;">Stop Sniping</button>
+                            </div>
+                        </div>
+                        <div class="sniping-status" id="snipingStatus">
+                            <div class="status-indicator">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Ready to snipe</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Trades Section -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Active Trades</h3>
+                        <div class="active-trades" id="activeTrades">
+                            <div class="no-trades">No active trades</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trades Page -->
+            <div class="trades-content" style="display: none;">
+                <div class="trades-sections">
+                    <!-- Active Positions -->
+                    <div class="trades-section">
+                        <h3 class="section-title">Active Positions</h3>
+                        <div class="active-positions" id="activePositions">
+                            <div class="no-positions">No active positions</div>
+                        </div>
+                    </div>
+
+                    <!-- Trade History -->
+                    <div class="trades-section">
+                        <h3 class="section-title">Trade History</h3>
+                        <div class="trade-history" id="tradeHistory">
+                            <div class="no-history">No trade history</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallets Page -->
+            <div class="wallets-content" style="display: none;">
+                <div class="wallets-sections">
+                    <!-- Wallet Balance -->
+                    <div class="wallets-section">
+                        <h3 class="section-title">Wallet Balance</h3>
+                        <div class="balance-display">
+                            <div class="balance-amount" id="walletBalance">0.00 SOL</div>
+                            <div class="balance-value" id="balanceValue">$0.00 USD</div>
+                        </div>
+                    </div>
+
+                    <!-- Deposit Section -->
+                    <div class="wallets-section">
+                        <h3 class="section-title">Deposit SOL</h3>
+                        <div class="deposit-section">
+                            <div class="deposit-address">
+                                <label>Your Deposit Address</label>
+                                <div class="address-display">
+                                    <span class="deposit-address-text" id="depositAddress">Loading...</span>
+                                    <button class="copy-address-btn" id="copyAddressBtn">
+                                        <svg class="copy-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="deposit-info">
+                                <p>Send SOL to this address to top up your wallet balance. This address will never change.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trader Allocation -->
+                    <div class="wallets-section">
+                        <h3 class="section-title">Trader Allocation</h3>
+                        <div class="allocation-section">
+                            <div class="allocation-info">
+                                <p>Dedicate specific amounts of SOL to individual traders for copy trading.</p>
+                            </div>
+                            <div class="trader-allocations" id="traderAllocations">
+                                <div class="no-allocations">No traders added yet</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History -->
+                    <div class="wallets-section">
+                        <h3 class="section-title">Transaction History</h3>
+                        <div class="transaction-history" id="transactionHistory">
+                            <div class="no-transactions">No transactions yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PNL Page -->
+            <div class="pnl-content" style="display: none;">
+                <div class="pnl-sections">
+                    <!-- Overall PNL Summary -->
+                    <div class="pnl-section">
+                        <h3 class="section-title">Overall P&L</h3>
+                        <div class="pnl-summary">
+                            <div class="pnl-main">
+                                <div class="pnl-amount" id="overallPnl">+0.00 SOL</div>
+                                <div class="pnl-percentage" id="overallPnlPercent">+0.00%</div>
+                            </div>
+                            <div class="pnl-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Total Trades</div>
+                                    <div class="stat-value" id="totalTrades">0</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Win Rate</div>
+                                    <div class="stat-value" id="winRate">0%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Avg Win</div>
+                                    <div class="stat-value" id="avgWin">0.00 SOL</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Avg Loss</div>
+                                    <div class="stat-value" id="avgLoss">0.00 SOL</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PNL Chart -->
+                    <div class="pnl-section">
+                        <h3 class="section-title">Performance Chart</h3>
+                        <div class="chart-container">
+                            <canvas id="pnlChart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Performance -->
+                    <div class="pnl-section">
+                        <h3 class="section-title">Recent Performance</h3>
+                        <div class="recent-performance" id="recentPerformance">
+                            <div class="no-performance">No performance data yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <footer class="footer">
@@ -76,6 +389,132 @@
             </div>
         </footer>
     </div>
+    
+    <!-- Custom Notification System -->
+    <div class="notification-container" id="notificationContainer">
+        <div class="notification" id="notification">
+            <div class="notification-content">
+                <span class="notification-message" id="notificationMessage"></span>
+                <button class="notification-close" id="notificationClose">×</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Popup -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-popup" id="settingsPopup">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button class="settings-close" id="settingsClose">×</button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Security Section -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Security</h4>
+                    <div class="setting-item">
+                        <label for="passcodeEnabled">Enable Passcode</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="passcodeEnabled" class="toggle-input">
+                            <label for="passcodeEnabled" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div class="setting-item" id="passcodeInputContainer" style="display: none;">
+                        <label for="passcodeInput">Passcode</label>
+                        <input type="password" id="passcodeInput" placeholder="Enter 4-digit passcode" maxlength="4" class="setting-input">
+                    </div>
+                </div>
+
+                <!-- Theme Section -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Appearance</h4>
+                    <div class="setting-item">
+                        <label>Theme Color</label>
+                        <div class="theme-options">
+                            <button class="theme-btn active" data-theme="dark">Dark</button>
+                            <button class="theme-btn" data-theme="blue">Blue</button>
+                            <button class="theme-btn" data-theme="green">Green</button>
+                            <button class="theme-btn" data-theme="purple">Purple</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallets Section -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Copy Trading Wallets</h4>
+                    <div class="setting-item">
+                        <button class="view-wallets-btn" id="viewWalletsBtn">View My Wallets</button>
+                    </div>
+                </div>
+
+                <!-- Trading Settings -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Trading</h4>
+                    <div class="setting-item">
+                        <label for="defaultSlippage">Default Slippage (%)</label>
+                        <input type="number" id="defaultSlippage" value="5" min="0.1" max="50" step="0.1" class="setting-input">
+                    </div>
+                    <div class="setting-item">
+                        <label for="defaultSolAmount">Default SOL Amount</label>
+                        <input type="number" id="defaultSolAmount" value="0.1" min="0.01" step="0.01" class="setting-input">
+                    </div>
+                    <div class="setting-item">
+                        <label for="autoConfirmTrades">Auto-confirm Trades</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="autoConfirmTrades" class="toggle-input">
+                            <label for="autoConfirmTrades" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Notifications</h4>
+                    <div class="setting-item">
+                        <label for="tradeNotifications">Trade Notifications</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="tradeNotifications" class="toggle-input" checked>
+                            <label for="tradeNotifications" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <label for="priceAlerts">Price Alerts</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="priceAlerts" class="toggle-input">
+                            <label for="priceAlerts" class="toggle-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="settings-section">
+                    <h4 class="settings-section-title">Data</h4>
+                    <div class="setting-item">
+                        <button class="export-data-btn" id="exportDataBtn">Export Data</button>
+                    </div>
+                    <div class="setting-item">
+                        <button class="clear-data-btn" id="clearDataBtn">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallets Modal -->
+    <div class="wallets-modal" id="walletsModal">
+        <div class="wallets-modal-content">
+            <div class="wallets-modal-header">
+                <h3>My Copy Trading Wallets</h3>
+                <button class="wallets-modal-close" id="walletsModalClose">×</button>
+            </div>
+            <div class="wallets-modal-body">
+                <div class="wallets-list" id="walletsList">
+                    <div class="no-wallets">No wallets found</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script src="popup.js"></script>
 </body>
 </html>
