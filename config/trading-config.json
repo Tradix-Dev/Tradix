@@ -1,0 +1,61 @@
+{
+  "trading": {
+    "defaults": {
+      "slippage": 5.0,
+      "solAmount": 0.1,
+      "buyAmount": 100,
+      "sellAmount": 100,
+      "buyDelay": 0,
+      "sellDelay": 0
+    },
+    "limits": {
+      "maxSlippage": 50.0,
+      "minSolAmount": 0.01,
+      "maxSolAmount": 10.0,
+      "maxBuyDelay": 300,
+      "maxSellDelay": 300
+    },
+    "riskManagement": {
+      "maxDailyLoss": 1.0,
+      "maxPositionSize": 0.5,
+      "stopLossPercentage": 20,
+      "takeProfitPercentage": 50
+    }
+  },
+  "networks": {
+    "solana": {
+      "rpcEndpoint": "https://api.mainnet-beta.solana.com",
+      "wsEndpoint": "wss://api.mainnet-beta.solana.com",
+      "networkId": "mainnet-beta"
+    },
+    "devnet": {
+      "rpcEndpoint": "https://api.devnet.solana.com",
+      "wsEndpoint": "wss://api.devnet.solana.com",
+      "networkId": "devnet"
+    }
+  },
+  "dex": {
+    "raydium": {
+      "enabled": true,
+      "priority": 1,
+      "endpoints": {
+        "api": "https://api.raydium.io",
+        "ws": "wss://api.raydium.io"
+      }
+    },
+    "jupiter": {
+      "enabled": true,
+      "priority": 2,
+      "endpoints": {
+        "api": "https://quote-api.jup.ag",
+        "ws": "wss://quote-api.jup.ag"
+      }
+    }
+  },
+  "monitoring": {
+    "priceUpdateInterval": 1000,
+    "positionCheckInterval": 5000,
+    "healthCheckInterval": 30000,
+    "logLevel": "info"
+  }
+}

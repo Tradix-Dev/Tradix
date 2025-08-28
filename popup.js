@@ -12,6 +12,7 @@ class TradingDashboard {
         this.trades = [];
         this.solanaPrice = 0;
         this.currentView = 'home'; // Track current view
+        this.settingsConfigured = false; // Track if settings were configured
         
         if (this.tradingFeed) {
             this.fetchSolanaPrice();
@@ -243,15 +244,25 @@ class TradingDashboard {
         if (this.homeContent) this.homeContent.style.display = 'block';
         if (this.dashboardContent) this.dashboardContent.style.display = 'none';
         if (this.tradesContent) this.tradesContent.style.display = 'none';
+        if (this.walletsContent) this.walletsContent.style.display = 'none';
+        if (this.pnlContent) this.pnlContent.style.display = 'none';
         this.currentView = 'home';
+        
+        // Reset scroll position
+        window.scrollTo(0, 0);
     }
 
     showDashboardView() {
         if (this.homeContent) this.homeContent.style.display = 'none';
         if (this.dashboardContent) this.dashboardContent.style.display = 'block';
         if (this.tradesContent) this.tradesContent.style.display = 'none';
+        if (this.walletsContent) this.walletsContent.style.display = 'none';
+        if (this.pnlContent) this.pnlContent.style.display = 'none';
         this.currentView = 'dashboard';
         this.initDashboard();
+        
+        // Reset scroll position
+        window.scrollTo(0, 0);
         
         // Force setup stop loss after a short delay to ensure DOM is ready
         setTimeout(() => {
@@ -267,6 +278,9 @@ class TradingDashboard {
         if (this.pnlContent) this.pnlContent.style.display = 'none';
         this.currentView = 'trades';
         this.initTrades();
+        
+        // Reset scroll position
+        window.scrollTo(0, 0);
     }
 
     showWalletsView() {
@@ -277,6 +291,9 @@ class TradingDashboard {
         if (this.pnlContent) this.pnlContent.style.display = 'none';
         this.currentView = 'wallets';
         this.initWallets();
+        
+        // Reset scroll position
+        window.scrollTo(0, 0);
     }
 
     showPnlView() {
@@ -287,12 +304,16 @@ class TradingDashboard {
         if (this.pnlContent) this.pnlContent.style.display = 'block';
         this.currentView = 'pnl';
         this.initPnl();
+        
+        // Reset scroll position
+        window.scrollTo(0, 0);
     }
 
     initDashboard() {
         this.setupCopyTrading();
         this.setupTokenSniping();
         this.setupStopLoss();
+        this.setupInputValidation();
         this.loadSavedData();
     }
 
@@ -304,8 +325,7 @@ class TradingDashboard {
     initWallets() {
         this.loadWalletBalance();
         this.loadDepositAddress();
-        this.loadTraderAllocations();
-        this.loadTransactionHistory();
+        this.setupWithdrawForm();
     }
 
     initPnl() {
@@ -332,6 +352,540 @@ class TradingDashboard {
                 } else {
                     this.showNotification('Please enter a valid Solana address', 'error');
                 }
+            });
+        }
+
+        // Setup sell percentage button click events
+        this.setupSellPercentageButtons();
+    }
+
+    setupSellPercentageButtons() {
+        const sellButtons = document.querySelectorAll('.sell-btn');
+        sellButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                sellButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                // Store the selected percentage
+                this.selectedSellPercentage = button.getAttribute('data-value');
+                console.log('Selected sell percentage:', this.selectedSellPercentage);
+                
+                // Remove active class after 0.65 seconds
+                setTimeout(() => {
+                    button.classList.remove('active');
+                }, 650);
+            });
+        });
+    }
+
+    setupInputValidation() {
+        // Setup slippage input validation
+        const slippageInput = document.getElementById('slippage');
+        if (slippageInput) {
+            // Multiple event listeners to catch all input methods
+            const validateSlippage = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 100
+                if (value > 100) {
+                    e.target.value = 100;
+                    value = 100;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 5;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            slippageInput.addEventListener('input', validateSlippage);
+            slippageInput.addEventListener('change', validateSlippage);
+            slippageInput.addEventListener('blur', validateSlippage);
+            slippageInput.addEventListener('keyup', validateSlippage);
+            
+            // Prevent paste of invalid values
+            slippageInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateSlippage(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            slippageInput.addEventListener('focus', () => {
+                if (slippageInput.value === '5') {
+                    slippageInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            slippageInput.addEventListener('blur', () => {
+                if (slippageInput.value === '' || slippageInput.value === '0') {
+                    slippageInput.value = '5';
+                }
+            });
+        }
+
+        // Setup SOL amount input validation
+        const solAmountInput = document.getElementById('solAmount');
+        if (solAmountInput) {
+            // Multiple event listeners to catch all input methods
+            const validateSolAmount = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0.01;
+                    value = 0.01;
+                }
+                
+                // Prevent values over 10
+                if (value > 10) {
+                    e.target.value = 10;
+                    value = 10;
+                }
+                
+                // Ensure minimum value of 0.01
+                if (value < 0.01 && value !== 0) {
+                    e.target.value = 0.01;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 0.1;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            solAmountInput.addEventListener('input', validateSolAmount);
+            solAmountInput.addEventListener('change', validateSolAmount);
+            solAmountInput.addEventListener('blur', validateSolAmount);
+            solAmountInput.addEventListener('keyup', validateSolAmount);
+            
+            // Prevent paste of invalid values
+            solAmountInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateSolAmount(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            solAmountInput.addEventListener('focus', () => {
+                if (solAmountInput.value === '0.1') {
+                    solAmountInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            solAmountInput.addEventListener('blur', () => {
+                if (solAmountInput.value === '' || solAmountInput.value === '0') {
+                    solAmountInput.value = '0.1';
+                }
+            });
+        }
+
+        // Setup time delay input validation
+        const buyDelayInput = document.getElementById('buyDelay');
+        const timeSellDelayInput = document.getElementById('timeSellDelay');
+        
+        if (buyDelayInput) {
+            const validateBuyDelay = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 120
+                if (value > 120) {
+                    e.target.value = 120;
+                    value = 120;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 0;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            buyDelayInput.addEventListener('input', validateBuyDelay);
+            buyDelayInput.addEventListener('change', validateBuyDelay);
+            buyDelayInput.addEventListener('blur', validateBuyDelay);
+            buyDelayInput.addEventListener('keyup', validateBuyDelay);
+            
+            // Prevent paste of invalid values
+            buyDelayInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateBuyDelay(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            buyDelayInput.addEventListener('focus', () => {
+                if (buyDelayInput.value === '0') {
+                    buyDelayInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            buyDelayInput.addEventListener('blur', () => {
+                if (buyDelayInput.value === '') {
+                    buyDelayInput.value = '0';
+                }
+            });
+        }
+
+        if (timeSellDelayInput) {
+            const validateTimeSellDelay = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 120
+                if (value > 120) {
+                    e.target.value = 120;
+                    value = 120;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 0;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            timeSellDelayInput.addEventListener('input', validateTimeSellDelay);
+            timeSellDelayInput.addEventListener('change', validateTimeSellDelay);
+            timeSellDelayInput.addEventListener('blur', validateTimeSellDelay);
+            timeSellDelayInput.addEventListener('keyup', validateTimeSellDelay);
+            
+            // Prevent paste of invalid values
+            timeSellDelayInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateTimeSellDelay(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            timeSellDelayInput.addEventListener('focus', () => {
+                if (timeSellDelayInput.value === '0') {
+                    timeSellDelayInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            timeSellDelayInput.addEventListener('blur', () => {
+                if (timeSellDelayInput.value === '') {
+                    timeSellDelayInput.value = '0';
+                }
+            });
+        }
+
+        // Setup percentage input validation for stop loss and take profit
+        const profitPercentInput = document.getElementById('profitPercent');
+        const stopLossPercentInput = document.getElementById('stopLossPercent');
+        
+        if (profitPercentInput) {
+            const validateProfitPercent = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 100
+                if (value > 100) {
+                    e.target.value = 100;
+                    value = 100;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 50;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            profitPercentInput.addEventListener('input', validateProfitPercent);
+            profitPercentInput.addEventListener('change', validateProfitPercent);
+            profitPercentInput.addEventListener('blur', validateProfitPercent);
+            profitPercentInput.addEventListener('keyup', validateProfitPercent);
+            
+            // Prevent paste of invalid values
+            profitPercentInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateProfitPercent(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            profitPercentInput.addEventListener('focus', () => {
+                if (profitPercentInput.value === '50') {
+                    profitPercentInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            profitPercentInput.addEventListener('blur', () => {
+                if (profitPercentInput.value === '') {
+                    profitPercentInput.value = '50';
+                }
+            });
+        }
+
+        if (stopLossPercentInput) {
+            const validateStopLossPercent = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 100
+                if (value > 100) {
+                    e.target.value = 100;
+                    value = 100;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 20;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            stopLossPercentInput.addEventListener('input', validateStopLossPercent);
+            stopLossPercentInput.addEventListener('change', validateStopLossPercent);
+            stopLossPercentInput.addEventListener('blur', validateStopLossPercent);
+            stopLossPercentInput.addEventListener('keyup', validateStopLossPercent);
+            
+            // Prevent paste of invalid values
+            stopLossPercentInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateStopLossPercent(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            stopLossPercentInput.addEventListener('focus', () => {
+                if (stopLossPercentInput.value === '20') {
+                    stopLossPercentInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            stopLossPercentInput.addEventListener('blur', () => {
+                if (stopLossPercentInput.value === '') {
+                    stopLossPercentInput.value = '20';
+                }
+            });
+        }
+
+        // Setup Auto Sell Settings sell delay validation
+        const autoSellSellDelayInput = document.getElementById('sellDelay');
+        if (autoSellSellDelayInput) {
+            const validateAutoSellSellDelay = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0;
+                    value = 0;
+                }
+                
+                // Prevent values over 120
+                if (value > 120) {
+                    e.target.value = 120;
+                    value = 120;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 5;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            autoSellSellDelayInput.addEventListener('input', validateAutoSellSellDelay);
+            autoSellSellDelayInput.addEventListener('change', validateAutoSellSellDelay);
+            autoSellSellDelayInput.addEventListener('keyup', validateAutoSellSellDelay);
+            
+            // Prevent paste of invalid values
+            autoSellSellDelayInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateAutoSellSellDelay(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            autoSellSellDelayInput.addEventListener('focus', () => {
+                if (autoSellSellDelayInput.value === '5' || autoSellSellDelayInput.value === '5.0') {
+                    autoSellSellDelayInput.value = '';
+                }
+            });
+
+            // Handle both validation and auto-clear on blur
+            autoSellSellDelayInput.addEventListener('blur', (e) => {
+                // First run validation
+                validateAutoSellSellDelay(e);
+                
+                // Then handle auto-clear logic
+                if (autoSellSellDelayInput.value === '' || autoSellSellDelayInput.value === '0') {
+                    autoSellSellDelayInput.value = '5';
+                }
+            });
+        }
+
+        // Setup Auto Sell percentage buttons
+        const autoSellPercentButtons = document.querySelectorAll('.auto-sell-percent-btn');
+        autoSellPercentButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                autoSellPercentButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Store selected percentage
+                this.selectedAutoSellPercentage = button.getAttribute('data-percent');
+                
+                this.saveStopLossSettings();
+            });
+        });
+
+        // Setup Auto Sell SOL amount validation
+        const autoSellSolAmountInput = document.getElementById('autoSellSolAmount');
+        if (autoSellSolAmountInput) {
+            const validateAutoSellSolAmount = (e) => {
+                let value = parseFloat(e.target.value);
+                
+                // Prevent negative values
+                if (value < 0) {
+                    e.target.value = 0.01;
+                    value = 0.01;
+                }
+                
+                // Prevent values over 10
+                if (value > 10) {
+                    e.target.value = 10;
+                    value = 10;
+                }
+                
+                // Ensure minimum value of 0.01
+                if (value < 0.01 && value !== 0) {
+                    e.target.value = 0.01;
+                }
+                
+                // Ensure value is a valid number
+                if (isNaN(value)) {
+                    e.target.value = 0.1;
+                }
+            };
+
+            // Add multiple event listeners for comprehensive validation
+            autoSellSolAmountInput.addEventListener('input', validateAutoSellSolAmount);
+            autoSellSolAmountInput.addEventListener('change', validateAutoSellSolAmount);
+            autoSellSolAmountInput.addEventListener('blur', validateAutoSellSolAmount);
+            autoSellSolAmountInput.addEventListener('keyup', validateAutoSellSolAmount);
+            
+            // Prevent paste of invalid values
+            autoSellSolAmountInput.addEventListener('paste', (e) => {
+                setTimeout(() => {
+                    validateAutoSellSolAmount(e);
+                }, 0);
+            });
+
+            // Clear input on focus for better UX
+            autoSellSolAmountInput.addEventListener('focus', () => {
+                if (autoSellSolAmountInput.value === '0.1') {
+                    autoSellSolAmountInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            autoSellSolAmountInput.addEventListener('blur', () => {
+                if (autoSellSolAmountInput.value === '') {
+                    autoSellSolAmountInput.value = '0.1';
+                }
+            });
+        }
+
+        // Setup Check Interval validation
+        const checkIntervalInput = document.getElementById('snipeInterval');
+        if (checkIntervalInput) {
+            // Clear input on focus for better UX
+            checkIntervalInput.addEventListener('focus', () => {
+                if (checkIntervalInput.value === '30') {
+                    checkIntervalInput.value = '';
+                }
+            });
+
+            // Restore default value if empty on blur
+            checkIntervalInput.addEventListener('blur', () => {
+                if (checkIntervalInput.value === '') {
+                    checkIntervalInput.value = '30';
+                }
+            });
+        }
+
+        // Setup Token CA dropdown functionality
+        const tokenCABtn = document.getElementById('tokenCA');
+        const caDropdown = document.getElementById('caDropdown');
+        
+        if (tokenCABtn && caDropdown) {
+            tokenCABtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                caDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!tokenCABtn.contains(e.target) && !caDropdown.contains(e.target)) {
+                    caDropdown.classList.remove('show');
+                }
+            });
+
+            // Handle dropdown item selection
+            const dropdownItems = caDropdown.querySelectorAll('.ca-dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const selectedCA = item.getAttribute('data-ca');
+                    const selectedText = item.textContent;
+                    
+                    // Update button text
+                    const caText = tokenCABtn.querySelector('.ca-text');
+                    if (caText) {
+                        caText.textContent = selectedText;
+                    }
+                    
+                    // Update selected state
+                    dropdownItems.forEach(di => di.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    // Close dropdown
+                    caDropdown.classList.remove('show');
+                    
+                    // Store selected CA
+                    this.selectedTokenCA = selectedCA;
+                });
             });
         }
     }
@@ -383,27 +937,48 @@ class TradingDashboard {
 
         // Setup auto sell toggle functionality
         if (autoSellEnabled && sellDelay) {
-            // Always start with auto sell OFF and sell delay greyed out
-            autoSellEnabled.checked = false;
-            sellDelay.disabled = true;
-            sellDelay.style.opacity = '0.5';
-            sellDelay.style.background = '#1a1a1a';
-            sellDelay.style.color = '#666';
+            // Get the auto sell amount section
+            const autoSellAmountSection = document.getElementById('autoSellAmountSection');
             
-            autoSellEnabled.addEventListener('change', () => {
-                if (autoSellEnabled.checked) {
-                    // Auto sell ON - enable sell delay
+            // Function to update UI based on auto sell state
+            const updateAutoSellUI = (isEnabled) => {
+                if (isEnabled) {
+                    // Auto sell ON - enable sell delay and show amount section
                     sellDelay.disabled = false;
+                    sellDelay.removeAttribute('readonly');
                     sellDelay.style.opacity = '1';
                     sellDelay.style.background = '#2A2A2A';
                     sellDelay.style.color = '#fff';
+                    sellDelay.style.cursor = 'text';
+                    
+                    // Show sell amount section
+                    if (autoSellAmountSection) {
+                        autoSellAmountSection.style.display = 'block';
+                    }
                 } else {
-                    // Auto sell OFF - grey out sell delay
+                    // Auto sell OFF - grey out sell delay and hide amount section
                     sellDelay.disabled = true;
+                    sellDelay.setAttribute('readonly', true);
                     sellDelay.style.opacity = '0.5';
                     sellDelay.style.background = '#1a1a1a';
                     sellDelay.style.color = '#666';
+                    sellDelay.style.cursor = 'not-allowed';
+                    
+                    // Hide sell amount section
+                    if (autoSellAmountSection) {
+                        autoSellAmountSection.style.display = 'none';
+                    }
                 }
+            };
+            
+            // Set Auto Sell to OFF by default
+            autoSellEnabled.checked = false;
+            
+            // Initialize UI based on default state (OFF)
+            updateAutoSellUI(false);
+            
+            autoSellEnabled.addEventListener('change', () => {
+                updateAutoSellUI(autoSellEnabled.checked);
                 this.saveStopLossSettings();
             });
         }
@@ -551,6 +1126,7 @@ class TradingDashboard {
         const viewWalletsBtn = document.getElementById('viewWalletsBtn');
         const exportDataBtn = document.getElementById('exportDataBtn');
         const clearDataBtn = document.getElementById('clearDataBtn');
+        const stopAllTradesBtn = document.getElementById('stopAllTradesBtn');
 
         // Close button
         if (closeBtn) {
@@ -574,9 +1150,10 @@ class TradingDashboard {
                 if (passcodeEnabled.checked) {
                     passcodeInputContainer.style.display = 'block';
                 } else {
-                    passcodeInputContainer.style.display = 'none';
+                    // Show confirmation modal when disabling passcode
+                    this.showDisablePasscodeModal();
                 }
-                this.saveSettings();
+                this.saveAppSettings();
             });
         }
 
@@ -587,7 +1164,7 @@ class TradingDashboard {
                 button.classList.add('active');
                 const theme = button.getAttribute('data-theme');
                 this.applyTheme(theme);
-                this.saveSettings();
+                this.saveAppSettings();
             });
         });
 
@@ -608,9 +1185,14 @@ class TradingDashboard {
         // Clear data button
         if (clearDataBtn) {
             clearDataBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
-                    this.clearAllData();
-                }
+                this.showClearAllDataModal();
+            });
+        }
+
+        // Stop all trades button
+        if (stopAllTradesBtn) {
+            stopAllTradesBtn.addEventListener('click', () => {
+                this.showStopAllTradesModal();
             });
         }
 
@@ -618,7 +1200,7 @@ class TradingDashboard {
         const inputs = document.querySelectorAll('#settingsOverlay input[type="number"], #settingsOverlay input[type="password"]');
         inputs.forEach(input => {
             input.addEventListener('change', () => {
-                this.saveSettings();
+                this.saveAppSettings();
             });
         });
 
@@ -626,9 +1208,23 @@ class TradingDashboard {
         const toggles = document.querySelectorAll('#settingsOverlay input[type="checkbox"]');
         toggles.forEach(toggle => {
             toggle.addEventListener('change', () => {
-                this.saveSettings();
+                this.saveAppSettings();
             });
         });
+
+        // Passcode input event listeners
+        const passcodeInput = document.getElementById('passcodeInput');
+        if (passcodeInput) {
+            passcodeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.checkPasscodeConfirmation();
+                }
+            });
+
+            passcodeInput.addEventListener('blur', () => {
+                this.checkPasscodeConfirmation();
+            });
+        }
     }
 
     loadSettings() {
@@ -657,6 +1253,9 @@ class TradingDashboard {
                     btn.classList.add('active');
                 }
             });
+            
+            // Apply the theme
+            this.applyTheme(currentTheme);
 
             // Load other settings
             const defaultSlippage = document.getElementById('defaultSlippage');
@@ -673,28 +1272,32 @@ class TradingDashboard {
         });
     }
 
-    saveSettings() {
+    saveAppSettings() {
         const settings = {
             passcodeEnabled: document.getElementById('passcodeEnabled').checked,
             passcode: document.getElementById('passcodeInput').value,
             theme: document.querySelector('.theme-btn.active').getAttribute('data-theme'),
-            defaultSlippage: document.getElementById('defaultSlippage').value,
-            defaultSolAmount: document.getElementById('defaultSolAmount').value,
-            autoConfirmTrades: document.getElementById('autoConfirmTrades').checked,
             tradeNotifications: document.getElementById('tradeNotifications').checked,
             priceAlerts: document.getElementById('priceAlerts').checked
         };
 
         chrome.storage.local.set({ appSettings: settings }, () => {
-            console.log('Settings saved');
+            console.log('App settings saved');
         });
     }
 
     applyTheme(theme) {
         // Remove existing theme classes
-        document.body.classList.remove('theme-dark', 'theme-blue', 'theme-green', 'theme-purple');
+        document.body.classList.remove('theme-dark', 'theme-light', 'theme-blue', 'theme-green', 'theme-purple');
         // Add new theme class
         document.body.classList.add(`theme-${theme}`);
+        
+        // Save theme to storage
+        chrome.storage.local.get(['appSettings'], (result) => {
+            const settings = result.appSettings || {};
+            settings.theme = theme;
+            chrome.storage.local.set({ appSettings: settings });
+        });
     }
 
     showWalletsModal() {
@@ -820,16 +1423,206 @@ class TradingDashboard {
             link.download = 'tradix-data.json';
             link.click();
             URL.revokeObjectURL(url);
-            this.showNotification('Data exported successfully', 'success');
         });
+    }
+
+    showClearAllDataModal() {
+        const modal = document.getElementById('clearAllDataModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // Setup event listeners for the modal buttons
+            const cancelBtn = document.getElementById('clearAllDataCancel');
+            const confirmBtn = document.getElementById('clearAllDataConfirm');
+            
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    modal.style.display = 'none';
+                };
+            }
+            
+            if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                    modal.style.display = 'none';
+                    this.clearAllData();
+                };
+            }
+        }
+    }
+
+    checkPasscodeConfirmation() {
+        const passcodeInput = document.getElementById('passcodeInput');
+        const passcode = passcodeInput.value.trim();
+        
+        if (passcode.length >= 4 && passcode.length <= 8) {
+            this.showPasscodeConfirmModal();
+        }
+    }
+
+    showPasscodeConfirmModal() {
+        const modal = document.getElementById('passcodeConfirmModal');
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+
+        const cancelBtn = document.getElementById('passcodeConfirmCancel');
+        const confirmBtn = document.getElementById('passcodeConfirmConfirm');
+
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            // Enable passcode permanently
+            const passcodeEnabled = document.getElementById('passcodeEnabled');
+            passcodeEnabled.checked = true;
+            
+            // Hide the passcode input container after confirmation
+            const passcodeInputContainer = document.getElementById('passcodeInputContainer');
+            passcodeInputContainer.style.display = 'none';
+            
+            this.saveAppSettings();
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+        });
+    }
+
+    toggleTraderSelection(traderAddress) {
+        const selectedTrader = document.querySelector(`[data-address="${traderAddress}"]`).closest('.trader-item');
+        const isCurrentlySelected = selectedTrader.classList.contains('active-trader');
+        
+        if (isCurrentlySelected) {
+            // Deselect - remove active class from this trader
+            selectedTrader.classList.remove('active-trader');
+            
+            // Deactivate trading settings and stop loss sections
+            const settingsContainer = document.querySelector('.settings-container');
+            const stopLossContainer = document.querySelector('.stop-loss-container');
+            
+            if (settingsContainer) {
+                settingsContainer.classList.remove('active');
+            }
+            if (stopLossContainer) {
+                stopLossContainer.classList.remove('active');
+            }
+        } else {
+            // Select - remove active class from all other traders and add to this one
+            const allTraderItems = document.querySelectorAll('.trader-item');
+            allTraderItems.forEach(item => {
+                item.classList.remove('active-trader');
+            });
+            
+            selectedTrader.classList.add('active-trader');
+            
+            // Activate trading settings and stop loss sections
+            const settingsContainer = document.querySelector('.settings-container');
+            const stopLossContainer = document.querySelector('.stop-loss-container');
+            
+            if (settingsContainer) {
+                settingsContainer.classList.add('active');
+            }
+            if (stopLossContainer) {
+                stopLossContainer.classList.add('active');
+            }
+        }
+    }
+
+    selectTraderForConfiguration(traderAddress) {
+        // Remove active class from all traders
+        const allTraderItems = document.querySelectorAll('.trader-item');
+        allTraderItems.forEach(item => {
+            item.classList.remove('active-trader');
+        });
+        
+        // Add active class to the specific trader
+        const selectedTrader = document.querySelector(`[data-address="${traderAddress}"]`).closest('.trader-item');
+        if (selectedTrader) {
+            selectedTrader.classList.add('active-trader');
+        }
+        
+        // Always activate trading settings and stop loss sections when selecting a trader
+        const settingsContainer = document.querySelector('.settings-container');
+        const stopLossContainer = document.querySelector('.stop-loss-container');
+        
+        if (settingsContainer) {
+            settingsContainer.classList.add('active');
+        }
+        if (stopLossContainer) {
+            stopLossContainer.classList.add('active');
+        }
+    }
+
+    showDisablePasscodeModal() {
+        const modal = document.getElementById('disablePasscodeModal');
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+
+        const cancelBtn = document.getElementById('disablePasscodeCancel');
+        const confirmBtn = document.getElementById('disablePasscodeConfirm');
+
+        cancelBtn.addEventListener('click', () => {
+            // Revert the toggle back to enabled
+            const passcodeEnabled = document.getElementById('passcodeEnabled');
+            passcodeEnabled.checked = true;
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            // Disable passcode permanently
+            const passcodeInputContainer = document.getElementById('passcodeInputContainer');
+            passcodeInputContainer.style.display = 'none';
+            this.saveAppSettings();
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+        });
+    }
+
+    showStopAllTradesModal() {
+        const modal = document.getElementById('stopAllTradesModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // Setup event listeners for the modal buttons
+            const cancelBtn = document.getElementById('stopAllTradesCancel');
+            const confirmBtn = document.getElementById('stopAllTradesConfirm');
+            
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    modal.style.display = 'none';
+                };
+            }
+            
+            if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                    modal.style.display = 'none';
+                    this.stopAllTrades();
+                };
+            }
+        }
     }
 
     clearAllData() {
         chrome.storage.local.clear(() => {
-            this.showNotification('All data cleared', 'warning');
             // Reload the page or reset the UI
             location.reload();
         });
+    }
+
+    stopAllTrades() {
+        // Implementation for stopping all trades
+        console.log('Stopping all trades...');
+        // Add your stop all trades logic here
     }
 
     // Wallets functionality
@@ -847,6 +1640,152 @@ class TradingDashboard {
         }
     }
 
+    setupWithdrawForm() {
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const withdrawAddress = document.getElementById('withdrawAddress');
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        const availableBalance = document.getElementById('availableBalance');
+        
+        // Set maximum amount to 1000 SOL
+        if (withdrawAmount) {
+            withdrawAmount.max = '1000';
+        }
+        
+        // Update available balance
+        this.updateAvailableBalance();
+        
+        // Setup withdraw button
+        if (withdrawBtn) {
+            withdrawBtn.addEventListener('click', () => {
+                this.processWithdraw();
+            });
+        }
+        
+        // Setup input validation
+        if (withdrawAmount) {
+            withdrawAmount.addEventListener('input', () => {
+                this.validateWithdrawAmount();
+            });
+        }
+        
+        // Initially disable the button
+        if (withdrawBtn) {
+            withdrawBtn.disabled = true;
+            withdrawBtn.textContent = 'Insufficient Balance';
+        }
+    }
+    
+    updateAvailableBalance() {
+        const availableBalance = document.getElementById('availableBalance');
+        const headerBalance = document.querySelector('.header-solana-amount');
+        
+        if (availableBalance && headerBalance) {
+            // Get balance from header (e.g., "0.00 SOL")
+            const balanceText = headerBalance.textContent;
+            const balance = parseFloat(balanceText.replace(' SOL', '')) || 0;
+            
+            availableBalance.textContent = `${balance.toFixed(2)} SOL`;
+            
+            // Update withdraw button state
+            this.updateWithdrawButtonState(balance);
+        }
+    }
+    
+    validateWithdrawAmount() {
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const availableBalance = document.getElementById('availableBalance');
+        
+        if (!withdrawAmount || !withdrawBtn || !availableBalance) return;
+        
+        const amount = parseFloat(withdrawAmount.value) || 0;
+        const balance = parseFloat(availableBalance.textContent.replace(' SOL', '')) || 0;
+        
+        // Check minimum amount (0.10 SOL)
+        if (amount < 0.10) {
+            withdrawBtn.disabled = true;
+            withdrawBtn.textContent = 'Minimum 0.10 SOL';
+            return;
+        }
+        
+        // Check maximum amount (1000 SOL)
+        if (amount > 1000) {
+            withdrawBtn.disabled = true;
+            withdrawBtn.textContent = 'Maximum 1000 SOL';
+            return;
+        }
+        
+        // Check if amount exceeds balance
+        if (amount > balance) {
+            withdrawBtn.disabled = true;
+            withdrawBtn.textContent = 'Insufficient Balance';
+            return;
+        }
+        
+        // Enable button
+        withdrawBtn.disabled = false;
+        withdrawBtn.textContent = 'Withdraw SOL';
+    }
+    
+    updateWithdrawButtonState(balance) {
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        if (!withdrawBtn) return;
+        
+        if (balance < 0.10) {
+            withdrawBtn.disabled = true;
+            withdrawBtn.textContent = 'Minimum 0.10 SOL';
+        } else {
+            withdrawBtn.disabled = false;
+            withdrawBtn.textContent = 'Withdraw SOL';
+        }
+    }
+    
+    processWithdraw() {
+        const withdrawAddress = document.getElementById('withdrawAddress');
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        
+        if (!withdrawAddress || !withdrawAmount) return;
+        
+        const address = withdrawAddress.value.trim();
+        const amount = parseFloat(withdrawAmount.value) || 0;
+        
+        // Validate address
+        if (!this.isValidSolanaAddress(address)) {
+            this.showNotification('Please enter a valid Solana address', 'error');
+            return;
+        }
+        
+        // Validate amount
+        if (amount < 0.10) {
+            this.showNotification('Minimum withdrawal amount is 0.10 SOL', 'error');
+            return;
+        }
+        
+        // Check balance
+        const availableBalance = document.getElementById('availableBalance');
+        const balance = parseFloat(availableBalance.textContent.replace(' SOL', '')) || 0;
+        
+        if (amount > balance) {
+            this.showNotification('Insufficient balance for withdrawal', 'error');
+            return;
+        }
+        
+        // Process withdrawal (simulated)
+        this.showNotification(`Withdrawal of ${amount.toFixed(2)} SOL to ${address.substring(0, 8)}...${address.substring(address.length - 8)} initiated`, 'success');
+        
+        // Clear form
+        withdrawAddress.value = '';
+        withdrawAmount.value = '';
+        
+        // Update balance (simulated)
+        const newBalance = balance - amount;
+        const headerBalance = document.querySelector('.header-solana-amount');
+        if (headerBalance) {
+            headerBalance.textContent = `${newBalance.toFixed(2)} SOL`;
+        }
+        this.updateAvailableBalance();
+    }
+
     loadDepositAddress() {
         const depositAddress = document.getElementById('depositAddress');
         const copyAddressBtn = document.getElementById('copyAddressBtn');
@@ -858,7 +1797,7 @@ class TradingDashboard {
                     depositAddress.textContent = result.depositAddress;
                 } else {
                     // Generate a sample address
-                    const sampleAddress = '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU';
+                    const sampleAddress = 'Dz3pQMPAjSvpGi5tYFt211JUVbJAGq7WTAXncytATt4b';
                     depositAddress.textContent = sampleAddress;
                     chrome.storage.local.set({ depositAddress: sampleAddress });
                 }
@@ -999,7 +1938,6 @@ class TradingDashboard {
         const canvas = document.getElementById('pnlChart');
         if (!canvas) return;
 
-        // Simple chart implementation
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
@@ -1007,16 +1945,49 @@ class TradingDashboard {
         // Clear canvas
         ctx.clearRect(0, 0, width, height);
 
-        // Draw a straight line for no trading data
-        ctx.strokeStyle = '#44ff44';
+        // Draw horizontal line in the middle
+        const lineY = height / 2; // Position in the middle
+        const padding = 10; // Add padding to keep line within bounds
+        const startX = padding;
+        const endX = width - padding;
+
+        // Draw the main green horizontal line
+        ctx.strokeStyle = '#2EE3AC';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        
-        // Draw a horizontal line in the middle of the chart
-        const middleY = height / 2;
-        ctx.moveTo(0, middleY);
-        ctx.lineTo(width, middleY);
+        ctx.moveTo(startX, lineY);
+        ctx.lineTo(endX, lineY);
         ctx.stroke();
+
+        // Add hover functionality for the line
+        this.setupChartHover(canvas, startX, endX, lineY);
+    }
+
+    setupChartHover(canvas, startX, endX, lineY) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'chart-tooltip';
+        tooltip.textContent = '$0.00 USD';
+        tooltip.style.display = 'none';
+        document.body.appendChild(tooltip);
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if mouse is over the line area (within 5px vertically)
+            if (x >= startX && x <= endX && Math.abs(y - lineY) <= 5) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = e.clientX + 10 + 'px';
+                tooltip.style.top = e.clientY - 30 + 'px';
+            } else {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
     }
 
     isValidSolanaAddress(address) {
@@ -1061,7 +2032,13 @@ class TradingDashboard {
 
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent triggering the main click
+            // Check settings first before toggling
+            if (!this.hasConfiguredSettings()) {
+                this.showSettingsWarning(address);
+                return; // Don't toggle if settings aren't configured
+            }
             this.toggleTrader(toggleBtn, address);
+            this.activateTradingSettings(address);
         });
 
         removeBtn.addEventListener('click', (e) => {
@@ -1069,9 +2046,9 @@ class TradingDashboard {
             this.removeTrader(traderItem);
         });
 
-                    // Click on trader main to activate trading settings
+                    // Click on trader main to toggle selection
             traderMain.addEventListener('click', () => {
-                this.activateTradingSettings(address);
+                this.toggleTraderSelection(address);
             });
 
         // Setup sell percentage buttons for this trader
@@ -1113,11 +2090,9 @@ class TradingDashboard {
         if (isActive) {
             button.classList.remove('active');
             toggleText.textContent = 'Inactive';
-            this.showNotification(`Trader ${address.slice(0, 8)}... deactivated`, 'warning');
         } else {
             button.classList.add('active');
             toggleText.textContent = 'Active';
-            this.showNotification(`Trader ${address.slice(0, 8)}... activated`, 'success');
         }
         
         this.saveTraderStatus(address, !isActive);
@@ -1132,6 +2107,9 @@ class TradingDashboard {
         const isCurrentlyActive = selectedTrader.classList.contains('active-trader');
         
         if (isCurrentlyActive) {
+            // Save current settings before deactivating
+            this.saveCurrentTraderSettings(traderAddress);
+            
             // Deactivate - remove active class from all trader items
             const allTraderItems = document.querySelectorAll('.trader-item');
             allTraderItems.forEach(item => {
@@ -1157,8 +2135,19 @@ class TradingDashboard {
                 sellDelay.style.cursor = 'not-allowed';
             }
             
-            this.showNotification(`Trader ${traderAddress.slice(0, 8)}... deselected`, 'warning', 1500);
+
         } else {
+            // Check if user has configured settings before activating
+            console.log('Checking if settings are configured...');
+            const hasSettings = this.hasConfiguredSettings();
+            console.log('Has configured settings:', hasSettings);
+            
+            if (!hasSettings) {
+                console.log('Showing settings warning...');
+                this.showSettingsWarning(address);
+                return; // Don't activate if settings aren't configured
+            }
+            
             // Activate - remove active class from all other trader items
             const allTraderItems = document.querySelectorAll('.trader-item');
             allTraderItems.forEach(item => {
@@ -1180,9 +2169,71 @@ class TradingDashboard {
             
             // Load trader-specific settings
             this.loadTraderSettings(traderAddress);
-            
-            this.showNotification(`Trader ${traderAddress.slice(0, 8)}... selected`, 'success', 1500);
         }
+    }
+
+    showSupportPopup() {
+        const overlay = document.getElementById('supportOverlay');
+        if (!overlay) return;
+
+        overlay.classList.add('show');
+        
+        // Setup close button
+        const closeBtn = document.getElementById('supportCloseBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                overlay.classList.remove('show');
+            });
+        }
+        
+        // Setup copy email button
+        const copyEmailBtn = document.getElementById('copyEmailBtn');
+        if (copyEmailBtn) {
+            copyEmailBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText('tradix4dev@gmail.com').then(() => {
+                    this.showNotification('Email copied to clipboard', 'success');
+                });
+            });
+        }
+        
+        // Setup contact button functionality
+        this.setupContactButton();
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('show');
+            }
+        });
+    }
+    
+    setupContactButton() {
+        const contactBtn = document.getElementById('contactBtn');
+        
+        if (!contactBtn) return;
+        
+        // Contact button click handler
+        contactBtn.addEventListener('click', () => {
+            window.open('https://www.tradix.info/support', '_blank');
+        });
+    }
+    
+
+
+    saveCurrentTraderSettings(traderAddress) {
+        // Save current form values to storage for this trader
+        const settings = {
+            slippage: document.getElementById('slippage')?.value || 5,
+            solAmount: document.getElementById('solAmount')?.value || 0.1,
+            buyAmount: document.getElementById('buyAmount')?.value || 0.1,
+            sellAmount: this.selectedSellPercentage || '100',
+            buyDelay: document.getElementById('buyDelay')?.value || 0,
+            sellDelay: document.getElementById('sellDelay')?.value || 0
+        };
+        
+        chrome.storage.local.set({ [`trader_${traderAddress}`]: settings }, () => {
+            console.log(`Settings saved for trader ${traderAddress} before deactivation`);
+        });
     }
 
     loadTraderSettings(traderAddress) {
@@ -1190,7 +2241,6 @@ class TradingDashboard {
             const settings = result[`trader_${traderAddress}`] || {
                 slippage: 5,
                 solAmount: 0.1,
-                buyAmount: 0.1,
                 sellAmount: 100,
                 buyDelay: 0,
                 sellDelay: 0
@@ -1231,6 +2281,126 @@ class TradingDashboard {
         });
     }
 
+    hasConfiguredSettings() {
+        // Check if settings were previously configured (stored in memory)
+        if (this.settingsConfigured) {
+            return true;
+        }
+        
+        // Check if user has configured basic trading settings
+        const slippage = document.getElementById('slippage')?.value;
+        const solAmount = document.getElementById('solAmount')?.value;
+        const buyDelay = document.getElementById('buyDelay')?.value;
+        const timeSellDelay = document.getElementById('timeSellDelay')?.value;
+        
+        // Check if any sell percentage button is selected (using correct class)
+        const selectedSellButton = document.querySelector('.sell-percentage-buttons .sell-btn.active');
+        
+        console.log('Settings check:', {
+            slippage,
+            solAmount,
+            buyDelay,
+            timeSellDelay,
+            selectedSellButton: selectedSellButton ? 'found' : 'not found'
+        });
+        
+        // Check if user has made changes to default values or selected sell percentage
+        const hasChangedSlippage = slippage && parseFloat(slippage) !== 5;
+        const hasChangedSolAmount = solAmount && parseFloat(solAmount) !== 0.1;
+        const hasChangedBuyDelay = buyDelay && parseFloat(buyDelay) !== 0;
+        const hasChangedSellDelay = timeSellDelay && parseFloat(timeSellDelay) !== 0;
+        const hasSellSettings = selectedSellButton !== null;
+        
+        console.log('Change detection:', {
+            hasChangedSlippage,
+            hasChangedSolAmount,
+            hasChangedBuyDelay,
+            hasChangedSellDelay,
+            hasSellSettings
+        });
+        
+        // User must have either changed default values OR selected a sell percentage
+        const hasCustomSettings = (hasChangedSlippage || hasChangedSolAmount || hasChangedBuyDelay || hasChangedSellDelay) || hasSellSettings;
+        
+        console.log('Final result:', hasCustomSettings);
+        
+        // Remember that settings were configured
+        if (hasCustomSettings) {
+            this.settingsConfigured = true;
+        }
+        
+        return hasCustomSettings;
+    }
+
+    showSettingsWarning(traderAddress = null) {
+        // Check if warning modal already exists
+        const existingModal = document.querySelector('.settings-warning-modal');
+        if (existingModal) {
+            return; // Don't show multiple modals
+        }
+        
+        // Create warning modal
+        const warningModal = document.createElement('div');
+        warningModal.className = 'settings-warning-modal';
+        warningModal.innerHTML = `
+            <div class="warning-content">
+                <div class="warning-header">
+                    <svg class="warning-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L1 21h22L12 2zm0 3.17L19.83 19H4.17L12 5.17zM11 16h2v2h-2zm0-6h2v4h-2z"/>
+                    </svg>
+                    <h3>Configuration Required</h3>
+                </div>
+                <div class="warning-body">
+                    <p>Please configure your copy trading settings before activating a trader to ensure stable profits.</p>
+                    <p>Recommended settings:</p>
+                    <ul>
+                        <li>Set appropriate slippage (1-10%)</li>
+                        <li>Configure SOL amount per trade</li>
+                        <li>Set buy/sell delays</li>
+                        <li>Choose sell percentage</li>
+                    </ul>
+                </div>
+                <div class="warning-actions">
+                    <button class="warning-btn warning-btn-secondary" id="warningCancel">Cancel</button>
+                    <button class="warning-btn warning-btn-primary" id="warningConfigure">Configure Now</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(warningModal);
+        
+        // Add event listeners
+        document.getElementById('warningCancel').addEventListener('click', () => {
+            if (document.body.contains(warningModal)) {
+                document.body.removeChild(warningModal);
+            }
+        });
+        
+        document.getElementById('warningConfigure').addEventListener('click', () => {
+            if (document.body.contains(warningModal)) {
+                document.body.removeChild(warningModal);
+            }
+            
+            // If a specific trader was provided, select it first
+            if (traderAddress) {
+                this.selectTraderForConfiguration(traderAddress);
+            }
+            
+            // Scroll to trading settings section
+            const settingsSection = document.querySelector('.settings-container');
+            if (settingsSection) {
+                settingsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (document.body.contains(warningModal)) {
+                document.body.removeChild(warningModal);
+            }
+        }, 10000);
+    }
+
     saveTraderStatus(address, isActive) {
         chrome.storage.local.set({ [`trader_status_${address}`]: isActive }, () => {
             console.log(`Status saved for trader ${address}`);
@@ -1242,16 +2412,12 @@ class TradingDashboard {
         document.getElementById('solAmount').value = '0.1';
         document.getElementById('buyAmount').value = '0.1';
         document.getElementById('buyDelay').value = '0';
-        document.getElementById('sellDelay').value = '0';
+                    document.getElementById('timeSellDelay').value = '0';
         
-        // Reset sell percentage buttons
+        // Reset sell percentage buttons - no default selection
         const sellButtons = document.querySelectorAll('.sell-btn');
         sellButtons.forEach(btn => btn.classList.remove('active'));
-        const defaultBtn = document.querySelector('.sell-btn[data-value="100"]');
-        if (defaultBtn) {
-            defaultBtn.classList.add('active');
-        }
-        this.selectedSellPercentage = '100';
+        this.selectedSellPercentage = null;
     }
 
     saveSettings() {
@@ -1286,6 +2452,35 @@ class TradingDashboard {
             return;
         }
 
+        // Show custom confirmation modal for WIP feature
+        this.showSnipingConfirmation(keywords, interval);
+    }
+
+    showSnipingConfirmation(keywords, interval) {
+        const modal = document.getElementById('snipingConfirmationModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // Setup event listeners for the modal buttons
+            const cancelBtn = document.getElementById('snipingCancelBtn');
+            const confirmBtn = document.getElementById('snipingConfirmBtn');
+            
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    modal.style.display = 'none';
+                };
+            }
+            
+            if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                    modal.style.display = 'none';
+                    this.executeSniping(keywords, interval);
+                };
+            }
+        }
+    }
+
+    executeSniping(keywords, interval) {
         this.snipingActive = true;
         this.snipingInterval = setInterval(() => {
             this.checkForNewTokens(keywords);
@@ -1294,7 +2489,7 @@ class TradingDashboard {
         this.updateSnipingStatus('active', 'Sniping active...');
         document.querySelector('.start-sniping-btn').style.display = 'none';
         document.querySelector('.stop-sniping-btn').style.display = 'block';
-        this.showNotification('Token sniping started', 'success');
+        this.showNotification('Token sniping started (WIP)', 'success');
     }
 
     stopSniping() {
@@ -1620,6 +2815,9 @@ class TradingDashboard {
 document.addEventListener('DOMContentLoaded', () => {
     const tradingDashboard = new TradingDashboard();
     
+    // Load settings and apply theme
+    tradingDashboard.loadSettings();
+    
     // Add dashboard button functionality
     const dashboardButton = document.querySelector('.dashboard-button');
     if (dashboardButton) {
@@ -1657,14 +2855,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Add click handlers for header icons
-    const clockIcon = document.querySelector('.clock-icon');
+    const chatIcon = document.querySelector('.chat-icon');
     const settingsIcon = document.querySelector('.settings-icon');
     const tradixIcon = document.querySelector('.tradix-icon');
     
-    if (clockIcon) {
-        clockIcon.addEventListener('click', () => {
-            // TODO: Handle clock icon click
-            console.log('Clock icon clicked');
+    if (chatIcon) {
+        chatIcon.addEventListener('click', () => {
+            tradingDashboard.showSupportPopup();
         });
     }
     
@@ -1680,3 +2877,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+

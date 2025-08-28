@@ -195,26 +195,7 @@ chrome.runtime.onStartup.addListener(() => {
     console.log('Tradix extension started');
 });
 
-// Handle tab updates to inject content scripts
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.url) {
-        const supportedSites = [
-            'solana.com',
-            'raydium.io',
-            'jup.ag',
-            'birdeye.so'
-        ];
-        
-        const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
-        
-        if (isSupportedSite) {
-            chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                files: ['content.js']
-            });
-        }
-    }
-});
+
 
 // Handle extension icon click
 chrome.action.onClicked.addListener((tab) => {

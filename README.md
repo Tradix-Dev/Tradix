@@ -4,20 +4,20 @@ A powerful Chrome extension for copying trades on the Solana blockchain with a s
 
 ## Features
 
-- **Wallet Integration**: Connect your Phantom wallet for seamless trading
 - **Copy Trading**: Automatically copy trades from successful traders
 - **Customizable Settings**: Adjust copy percentage, max trade size, and auto-copy preferences
 - **Real-time Monitoring**: Monitor trader transactions in real-time
 - **Trade History**: Track your copied trades and success rates
-- **Multi-site Support**: Works on popular Solana trading platforms
-- **Modern UI**: Clean black and white theme with smooth animations
+- **Modern UI**: Clean dark/light theme with smooth animations
+- **Live Trading Feed**: Real-time trading activity display with CoinGecko price data
+- **Portfolio Management**: Track positions and P&L
+- **Stop Loss Management**: Automated risk management
+- **Light/Dark Theme**: Toggle between light and dark themes
+- **Support System**: Direct contact support with redirect to official support page
 
-## Supported Platforms
+## Extension Overview
 
-- Solana Explorer (solana.com)
-- Raydium (raydium.io)
-- Jupiter (jup.ag)
-- Birdeye (birdeye.so)
+Tradix is a powerful Chrome extension for automated Solana copy trading. It provides a comprehensive UI for managing copy trading settings, monitoring trades, and tracking performance metrics with real-time data and advanced risk management features.
 
 ## Installation
 
@@ -29,7 +29,7 @@ A powerful Chrome extension for copying trades on the Solana blockchain with a s
 4. Click "Load unpacked" and select the `tradix` folder
 5. The Tradix extension should now appear in your extensions list
 
-### Method 2: Install from Chrome Web Store (Coming Soon)
+### Method 2: Install from Chrome Web Store
 
 1. Visit the Chrome Web Store
 2. Search for "Tradix Solana Copytrader"
@@ -40,20 +40,20 @@ A powerful Chrome extension for copying trades on the Solana blockchain with a s
 
 ### Initial Setup
 
-1. **Connect Wallet**: Click the Tradix extension icon and click "Connect Wallet"
-2. **Enter Trader Address**: Input the wallet address of the trader you want to copy
-3. **Configure Settings**:
+1. **Enter Trader Address**: Input the wallet address of the trader you want to copy
+2. **Configure Settings**:
    - Set copy percentage (1-100%)
    - Set maximum trade size in SOL
    - Enable/disable auto-copy trades
-4. **Start Copying**: Click "Start Copying" to begin monitoring
+3. **Start Copying**: Click "Start Copying" to begin monitoring
 
 ### Features Overview
 
-#### Wallet Connection
-- Supports Phantom wallet integration
-- Displays wallet address and balance
-- Secure connection with proper permissions
+#### Copy Trading
+- Automatically copy trades from successful traders
+- Real-time trade monitoring and execution
+- Advanced risk management and position sizing
+- Comprehensive trade history and analytics
 
 #### Copy Trading Settings
 - **Trader Address**: The wallet address of the trader to copy
@@ -61,9 +61,19 @@ A powerful Chrome extension for copying trades on the Solana blockchain with a s
 - **Max Trade Size**: Maximum SOL amount for any single copy trade
 - **Auto-copy**: Automatically execute copy trades without manual confirmation
 
+#### Theme System
+- **Light/Dark Mode**: Toggle between light and dark themes
+- **Persistent Settings**: Theme preference saved across sessions
+- **Smooth Transitions**: Animated theme switching
+
+#### Support System
+- **Contact Support**: Direct contact button redirects to official support page
+- **Email Support**: Direct email contact through extension
+- **Help Documentation**: Comprehensive help system
+
 #### Trade Monitoring
 - Real-time monitoring of trader transactions
-- Automatic detection of buy/sell orders
+- Buy/sell order detection and execution
 - Transaction success/failure tracking
 - Trade history with timestamps
 
@@ -72,6 +82,16 @@ A powerful Chrome extension for copying trades on the Solana blockchain with a s
 - Success rate percentage
 - Recent trade history
 - Performance metrics
+
+#### Live Trading Feed
+- Real-time trading activity display
+- Token price updates via CoinGecko API
+- Live trading volume and market data
+
+#### Withdraw System
+- SOL withdrawal functionality
+- Address validation and amount limits
+- Balance checking and minimum withdrawal enforcement
 
 ## File Structure
 
@@ -82,13 +102,19 @@ tradix/
 ├── popup.css             # Popup styling
 ├── popup.js              # Popup functionality
 ├── background.js         # Background service worker
-├── content.js            # Content script for websites
-├── content.css           # Content script styling
+
 ├── icons/                # Extension icons
 │   ├── icon16.png
 │   ├── icon32.png
 │   ├── icon48.png
 │   └── icon128.png
+├── src/                  # Source utilities
+│   └── utils/
+│       └── trading-engine.js
+├── config/               # Configuration files
+│   └── trading-config.json
+├── SECURITY.md           # Security documentation
+├── LICENSE               # MIT License
 └── README.md             # This file
 ```
 
@@ -96,30 +122,35 @@ tradix/
 
 ### Permissions
 
-- `activeTab`: Access to the current active tab
-- `storage`: Store user settings and trade history
-- `scripting`: Inject content scripts into supported websites
+- `storage`: Store user settings, trader data, and trade history locally using Chrome Storage API
 
-### Host Permissions
 
-- `https://*.solana.com/*`: Solana Explorer
-- `https://*.raydium.io/*`: Raydium DEX
-- `https://*.jup.ag/*`: Jupiter aggregator
-- `https://*.birdeye.so/*`: Birdeye analytics
+
+### External APIs
+
+- **CoinGecko API**: Used for real-time Solana price data
+  - Endpoint: `https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd`
+  - Purpose: Display current SOL price in the extension
 
 ### Architecture
 
 - **Manifest V3**: Uses the latest Chrome extension manifest version
 - **Service Worker**: Background script for monitoring and trade execution
-- **Content Scripts**: Injected into supported trading websites
 - **Popup Interface**: User-friendly settings and monitoring interface
+- **Local Storage**: Secure storage of user preferences and trade data
+- **Theme System**: Dynamic theme switching with persistent preferences
+- **Support System**: Integrated contact support with official support page redirect
 
 ## Security Features
 
-- Secure wallet connection through Phantom
-- Local storage of sensitive data
-- No external API calls for trade execution
-- Permission-based access control
+- Local storage of sensitive data using Chrome Storage API
+- Secure external API integration for price data
+- Permission-based access control (only storage permission required)
+- Content Security Policy compliance
+- Secure message passing between components
+- Optional passcode protection for settings
+- Advanced wallet security and private key protection
+
 
 ## Development
 
@@ -127,7 +158,6 @@ tradix/
 
 - Google Chrome browser
 - Basic knowledge of JavaScript and Chrome extensions
-- Phantom wallet extension (for testing)
 
 ### Local Development
 
@@ -153,20 +183,19 @@ tradix/
 - Check Chrome's developer console for errors
 - Verify manifest.json syntax
 
-**Wallet connection issues**
-- Make sure Phantom wallet extension is installed
-- Check if wallet is unlocked
-- Verify network connection
+
 
 **Copy trading not working**
 - Confirm trader address is correct
 - Check if auto-copy is enabled
 - Verify sufficient wallet balance
 
-**Content script not injecting**
-- Ensure you're on a supported website
-- Check host permissions in manifest.json
-- Reload the extension
+
+
+**Price data not updating**
+- Check internet connection
+- Verify CoinGecko API is accessible
+- Check browser console for API errors
 
 ### Debug Mode
 
@@ -189,7 +218,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Disclaimer
 
-This extension is for educational and development purposes. Trading cryptocurrencies involves significant risk. Always do your own research and never invest more than you can afford to lose. The developers are not responsible for any financial losses incurred through the use of this extension.
+Trading cryptocurrencies involves significant risk. Always do your own research and never invest more than you can afford to lose. The developers are not responsible for any financial losses incurred through the use of this extension. Past performance does not guarantee future results.
 
 ## Support
 
@@ -197,15 +226,6 @@ For support, please:
 1. Check the troubleshooting section above
 2. Search existing issues on GitHub
 3. Create a new issue with detailed information about your problem
-
-## Roadmap
-
-- [ ] Additional wallet support (Solflare, Backpack)
-- [ ] Advanced trading strategies
-- [ ] Portfolio analytics
-- [ ] Social trading features
-- [ ] Mobile app companion
-- [ ] API integration for more platforms
 
 ---
 

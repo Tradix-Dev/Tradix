@@ -18,9 +18,9 @@
                 </div>
             </div>
             <div class="header-icons">
-                <div class="clock-icon">
-                    <svg class="clock-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.9L16.2,16.2Z"/>
+                <div class="chat-icon">
+                    <svg class="chat-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M6,9H18V11H6M14,14H6V12H14M18,8H6V6H18"/>
                     </svg>
                 </div>
                 <div class="settings-icon">
@@ -75,13 +75,15 @@
                                     <div class="setting-item">
                                         <label for="slippage">Slippage</label>
                                         <div class="input-wrapper">
-                                            <input type="text" id="slippage" value="5 %" class="setting-input">
+                                            <input type="number" id="slippage" value="5" min="0" max="100" step="0.1" class="setting-input">
+                                            <span class="input-suffix">%</span>
                                         </div>
                                     </div>
                                     <div class="setting-item">
                                         <label for="solAmount">SOL Amount</label>
                                         <div class="input-wrapper">
-                                            <input type="text" id="solAmount" value="0.1 SOL" class="setting-input">
+                                            <input type="number" id="solAmount" value="0.1" min="0.01" max="10" step="0.01" class="setting-input">
+                                            <span class="input-suffix">SOL</span>
                                         </div>
                                     </div>
                                 </div>
@@ -92,18 +94,31 @@
                                 <h4 class="group-title">Trade Amounts</h4>
                                 <div class="settings-row">
                                     <div class="setting-item">
-                                        <label for="buyAmount">Buy Amount</label>
-                                        <div class="input-wrapper">
-                                            <input type="text" id="buyAmount" value="0.1 SOL" class="setting-input">
-                                        </div>
-                                    </div>
-                                    <div class="setting-item">
                                         <label for="sellAmount">Sell Amount</label>
                                         <div class="sell-percentage-buttons">
                                             <button class="sell-btn" data-value="25">25%</button>
                                             <button class="sell-btn" data-value="50">50%</button>
                                             <button class="sell-btn" data-value="75">75%</button>
-                                            <button class="sell-btn active" data-value="100">100%</button>
+                                            <button class="sell-btn" data-value="100">100%</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="settings-row">
+                                    <div class="setting-item">
+                                        <label for="tokenCA">Token CA</label>
+                                        <div class="input-wrapper">
+                                            <button type="button" id="tokenCA" class="ca-select-btn">
+                                                <span class="ca-text">Choose a CA</span>
+                                                <span class="ca-arrows">
+                                                    <svg class="chevron-svg" viewBox="0 0 12 16" width="12" height="16">
+                                                        <path d="M2 4 L6 8 L10 4" stroke="#ccc" stroke-width="1.5" fill="none"/>
+                                                        <path d="M2 8 L6 12 L10 8" stroke="#ccc" stroke-width="1.5" fill="none"/>
+                                                    </svg>
+                                                </span>
+                                            </button>
+                                            <div class="ca-dropdown" id="caDropdown">
+                                                <div class="ca-dropdown-item" data-ca="none">No CA available</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -116,13 +131,14 @@
                                     <div class="setting-item">
                                         <label for="buyDelay">Buy Delay</label>
                                         <div class="input-wrapper">
-                                            <input type="text" id="buyDelay" value="0 sec" class="setting-input">
+                                            <input type="number" id="buyDelay" value="0" min="0" max="120" class="setting-input">
+                                            <span class="input-suffix">sec</span>
                                         </div>
                                     </div>
                                     <div class="setting-item">
                                         <label for="sellDelay">Sell Delay</label>
                                         <div class="input-wrapper">
-                                            <input type="number" id="sellDelay" value="0" min="0" max="300" class="setting-input">
+                                            <input type="number" id="timeSellDelay" value="0" min="0" max="120" class="setting-input">
                                             <span class="input-suffix">sec</span>
                                         </div>
                                     </div>
@@ -141,7 +157,7 @@
                                 <h4 class="group-title">Take Profit</h4>
                                 <div class="settings-row">
                                     <div class="setting-item">
-                                        <label for="profitMC">Profit MC Target</label>
+                                        <label for="profitMC">Profit MC</label>
                                         <div class="input-wrapper profit-mc-wrapper">
                                             <input type="text" id="profitMC" value="1000000 MC" class="setting-input profit-mc-input">
                                         </div>
@@ -188,7 +204,29 @@
                                     <div class="setting-item">
                                         <label for="sellDelay">Sell Delay</label>
                                         <div class="input-wrapper">
-                                            <input type="text" id="sellDelay" value="5 sec" class="setting-input">
+                                            <input type="number" id="sellDelay" value="5" min="0" max="120" class="setting-input">
+                                            <span class="input-suffix">sec</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Auto Sell Amount Section (hidden by default) -->
+                                <div id="autoSellAmountSection" class="auto-sell-amount-section" style="display: none;">
+                                    <div class="setting-item">
+                                        <label>Sell Amount</label>
+                                        <div class="sell-amount-options">
+                                            <div class="sell-percentage-buttons">
+                                                <button type="button" class="auto-sell-percent-btn" data-percent="25">25%</button>
+                                                <button type="button" class="auto-sell-percent-btn" data-percent="50">50%</button>
+                                                <button type="button" class="auto-sell-percent-btn" data-percent="75">75%</button>
+                                                <button type="button" class="auto-sell-percent-btn" data-percent="100">100%</button>
+                                            </div>
+                                            <div class="sell-sol-amount">
+                                                <div class="input-wrapper">
+                                                    <input type="number" id="autoSellSolAmount" value="0.1" min="0.01" max="10" step="0.01" class="setting-input">
+                                                    <span class="input-suffix">SOL</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -285,24 +323,27 @@
                         </div>
                     </div>
 
-                    <!-- Trader Allocation -->
-                    <div class="wallets-section">
-                        <h3 class="section-title">Trader Allocation</h3>
-                        <div class="allocation-section">
-                            <div class="allocation-info">
-                                <p>Dedicate specific amounts of SOL to individual traders for copy trading.</p>
-                            </div>
-                            <div class="trader-allocations" id="traderAllocations">
-                                <div class="no-allocations">No traders added yet</div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Transaction History -->
+
+                    <!-- Withdraw SOL -->
                     <div class="wallets-section">
-                        <h3 class="section-title">Transaction History</h3>
-                        <div class="transaction-history" id="transactionHistory">
-                            <div class="no-transactions">No transactions yet</div>
+                        <h3 class="section-title">Withdraw SOL</h3>
+                        <div class="withdraw-form">
+                            <div class="input-group">
+                                <label for="withdrawAddress">Recipient Address</label>
+                                <input type="text" id="withdrawAddress" placeholder="Enter Solana wallet address" class="address-input">
+                            </div>
+                            <div class="input-group">
+                                <label for="withdrawAmount">Amount (SOL)</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="withdrawAmount" placeholder="0.00" min="0.10" max="10" step="0.01" class="amount-input">
+                                    <span class="input-suffix">SOL</span>
+                                </div>
+                            </div>
+                            <div class="balance-info">
+                                <span>Available Balance: <span id="availableBalance">0.00 SOL</span></span>
+                            </div>
+                            <button class="withdraw-btn" id="withdrawBtn">Withdraw SOL</button>
                         </div>
                     </div>
                 </div>
@@ -421,7 +462,15 @@
                     </div>
                     <div class="setting-item" id="passcodeInputContainer" style="display: none;">
                         <label for="passcodeInput">Passcode</label>
-                        <input type="password" id="passcodeInput" placeholder="Enter 4-digit passcode" maxlength="4" class="setting-input">
+                        <input type="password" id="passcodeInput" placeholder="Enter 4-8 character passcode" maxlength="8" minlength="4" class="setting-input">
+                    </div>
+                    <div class="setting-item" id="passcodeConfirmContainer" style="display: none;">
+                        <label for="passcodeConfirm">Confirm Passcode</label>
+                        <input type="password" id="passcodeConfirm" placeholder="Confirm your passcode" maxlength="8" minlength="4" class="setting-input">
+                    </div>
+                    <div class="setting-item" id="passcodeActionsContainer" style="display: none;">
+                        <button type="button" id="savePasscodeBtn" class="save-passcode-btn">Save Passcode</button>
+                        <button type="button" id="cancelPasscodeBtn" class="cancel-passcode-btn">Cancel</button>
                     </div>
                 </div>
 
@@ -431,19 +480,9 @@
                     <div class="setting-item">
                         <label>Theme Color</label>
                         <div class="theme-options">
+                            <button class="theme-btn" data-theme="light">Light</button>
                             <button class="theme-btn active" data-theme="dark">Dark</button>
-                            <button class="theme-btn" data-theme="blue">Blue</button>
-                            <button class="theme-btn" data-theme="green">Green</button>
-                            <button class="theme-btn" data-theme="purple">Purple</button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Wallets Section -->
-                <div class="settings-section">
-                    <h4 class="settings-section-title">Copy Trading Wallets</h4>
-                    <div class="setting-item">
-                        <button class="view-wallets-btn" id="viewWalletsBtn">View My Wallets</button>
                     </div>
                 </div>
 
@@ -451,19 +490,7 @@
                 <div class="settings-section">
                     <h4 class="settings-section-title">Trading</h4>
                     <div class="setting-item">
-                        <label for="defaultSlippage">Default Slippage (%)</label>
-                        <input type="number" id="defaultSlippage" value="5" min="0.1" max="50" step="0.1" class="setting-input">
-                    </div>
-                    <div class="setting-item">
-                        <label for="defaultSolAmount">Default SOL Amount</label>
-                        <input type="number" id="defaultSolAmount" value="0.1" min="0.01" step="0.01" class="setting-input">
-                    </div>
-                    <div class="setting-item">
-                        <label for="autoConfirmTrades">Auto-confirm Trades</label>
-                        <div class="toggle-switch">
-                            <input type="checkbox" id="autoConfirmTrades" class="toggle-input">
-                            <label for="autoConfirmTrades" class="toggle-label"></label>
-                        </div>
+                        <button class="stop-all-trades-btn" id="stopAllTradesBtn">Stop All Trades</button>
                     </div>
                 </div>
 
@@ -500,6 +527,104 @@
         </div>
     </div>
 
+    <!-- Stop All Trades Confirmation Modal -->
+    <div class="confirmation-modal" id="stopAllTradesModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-header">
+                <h3>Stop All Trades</h3>
+            </div>
+            <div class="confirmation-modal-body">
+                <p>Are you sure you want to stop all active trades and sell all positions?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-cancel-btn" id="stopAllTradesCancel">Cancel</button>
+                <button class="confirmation-confirm-btn" id="stopAllTradesConfirm">Stop All Trades</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear All Data Confirmation Modal -->
+    <div class="confirmation-modal" id="clearAllDataModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-header">
+                <h3>⚠️ Clear All Data</h3>
+            </div>
+            <div class="confirmation-modal-body">
+                <p><strong>Are you sure you want to clear all data?</strong></p>
+                <p>This will permanently delete:</p>
+                <ul>
+                    <li>All trader settings</li>
+                    <li>Trade history</li>
+                    <li>Wallet data</li>
+                    <li>Application preferences</li>
+                </ul>
+                <p><strong>This action cannot be undone.</strong></p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-cancel-btn" id="clearAllDataCancel">Cancel</button>
+                <button class="confirmation-confirm-btn" id="clearAllDataConfirm">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Passcode Confirmation Modal -->
+    <div class="confirmation-modal" id="passcodeConfirmModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-header">
+                <h3>🔒 Enable Passcode</h3>
+            </div>
+            <div class="confirmation-modal-body">
+                <p><strong>Are you sure you want to enable passcode protection?</strong></p>
+                <p>This will require a passcode to access the extension.</p>
+                <p><strong>Make sure to remember your passcode!</strong></p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-cancel-btn" id="passcodeConfirmCancel">Cancel</button>
+                <button class="confirmation-confirm-btn" id="passcodeConfirmConfirm">Enable Passcode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disable Passcode Confirmation Modal -->
+    <div class="confirmation-modal" id="disablePasscodeModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-header">
+                <h3>🔓 Disable Passcode</h3>
+            </div>
+            <div class="confirmation-modal-body">
+                <p><strong>Are you sure you want to disable passcode protection?</strong></p>
+                <p>This will remove the passcode requirement for accessing the extension.</p>
+                <p><strong>Your extension will no longer be protected.</strong></p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-cancel-btn" id="disablePasscodeCancel">Cancel</button>
+                <button class="confirmation-confirm-btn" id="disablePasscodeConfirm">Disable Passcode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Popup -->
+    <div class="support-overlay" id="supportOverlay">
+        <div class="support-popup">
+            <div class="support-header">
+                                    <h3>Support & Help</h3>
+                <button class="support-close-btn" id="supportCloseBtn">×</button>
+            </div>
+            <div class="support-content">
+                <div class="support-section">
+                    <h4>Contact Us</h4>
+                    <p>For support, questions, or feedback:</p>
+                    <div class="contact-info">
+                        <span class="email">tradix4dev@gmail.com</span>
+                        <button class="copy-email-btn" id="copyEmailBtn">Copy</button>
+                    </div>
+                    <button class="contact-btn" id="contactBtn">Contact Support</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Wallets Modal -->
     <div class="wallets-modal" id="walletsModal">
         <div class="wallets-modal-content">
@@ -511,6 +636,23 @@
                 <div class="wallets-list" id="walletsList">
                     <div class="no-wallets">No wallets found</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Token Sniping Confirmation Modal -->
+    <div class="confirmation-modal" id="snipingConfirmationModal">
+        <div class="confirmation-modal-content">
+            <div class="confirmation-modal-header">
+                <h3>⚠️ Warning</h3>
+            </div>
+            <div class="confirmation-modal-body">
+                <p><strong>Token Sniping is currently a Work-In-Progress feature and may be buggy.</strong></p>
+                <p>Do you want to continue?</p>
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-cancel-btn" id="snipingCancelBtn">Cancel</button>
+                <button class="confirmation-confirm-btn" id="snipingConfirmBtn">Continue</button>
             </div>
         </div>
     </div>
